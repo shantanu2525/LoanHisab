@@ -1,0 +1,270 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-dv: "Kokila", "Noto Sans Devanagari", "Mangal", "Nirmala UI", ui-sans-serif, system-ui, sans-serif;
+
+  /* Warm Indian paper (soil + turmeric) palette */
+  --color-sand-50: #fbf9f1;
+  --color-sand-100: #f6f1e5;
+  --color-sand-200: #eee5d3;
+  --color-sand-300: #e2d6bc;
+
+  --color-ink-900: #14211b;
+  --color-ink-800: #243129;
+  --color-ink-700: #33413a;
+  --color-ink-600: #45534b;
+  --color-ink-500: #5b6b62;
+  --color-ink-400: #82948a;
+  --color-ink-300: #a9b7af;
+  --color-ink-200: #d7ddd8;
+
+  --color-line: #e6dfcd;
+
+  /* India green */
+  --color-brand-50: #eff6f2;
+  --color-brand-100: #dceae3;
+  --color-brand-600: #12765a;
+  --color-brand-700: #0e5c46;
+  --color-brand-800: #0b4a39;
+  --color-brand-900: #0b3b2e;
+
+  /* Turmeric / marigold saffron */
+  --color-gold-50: #fdf6ea;
+  --color-gold-100: #fbefd5;
+  --color-gold-200: #f7dcad;
+  --color-gold-300: #f2c471;
+  --color-gold-400: #efa53a;
+  --color-gold-500: #e98e15;
+  --color-gold-600: #c56f0b;
+
+  /* Ashoka navy */
+  --color-chakra: #1d3e8f;
+
+  --color-danger: #b4432f;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px; /* clears the sticky header when jumping to sections */
+  -webkit-tap-highlight-color: transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+body {
+  min-width: 320px;
+  background-color: var(--color-sand-100);
+  /* Subtle rangoli-dot soil texture */
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-ink-500) 7%, transparent) 0.9px,
+    transparent 1.2px
+  );
+  background-size: 22px 22px;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+body::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* No scrollbars anywhere — swipe / arrow buttons drive horizontal rails */
+*::-webkit-scrollbar { width: 0; height: 0; display: none; }
+* { scrollbar-width: none; }
+
+::selection {
+  background: color-mix(in srgb, var(--color-gold-400) 55%, transparent);
+}
+
+/* Tricolour ribbon — tiranga */
+.tricolor-bar {
+  background: linear-gradient(
+    to right,
+    #f4760b 0%,
+    #f4760b 33.34%,
+    #ffffff 33.34%,
+    #ffffff 66.67%,
+    #138808 66.67%,
+    #138808 100%
+  );
+}
+
+/* Brand mark: saffron-to-green mehndi gradient */
+.brand-mark {
+  background: linear-gradient(155deg, var(--color-gold-500) -10%, var(--color-brand-700) 60%, var(--color-brand-800) 100%);
+}
+
+/* ── Indian motif animations ── */
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+@keyframes spin-rev { to { transform: rotate(-360deg); } }
+@keyframes parade-march { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes walk-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-3px) rotate(-1.2deg); }
+}
+@keyframes leg-swing-a {
+  0%, 100% { transform: translateY(0) rotate(6deg); }
+  50% { transform: translateY(0) rotate(-6deg); }
+}
+@keyframes leg-swing-b {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(0) rotate(6deg); }
+}
+@keyframes sway {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(1.5px) scaleY(1.12); }
+}
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-spin-slow { animation: spin-slow 90s linear infinite; transform-origin: 50% 50%; }
+.animate-spin-rev { animation: spin-rev 120s linear infinite; transform-origin: 50% 50%; }
+.animate-parade { animation: parade-march 70s linear infinite; will-change: transform; }
+.animate-walk { animation: walk-bob 1.1s ease-in-out infinite; transform-origin: 50% 90%; }
+.animate-sway { animation: sway 3.2s ease-in-out infinite; transform-origin: 50% 0%; }
+.animate-rise { animation: rise-in 0.5s cubic-bezier(0.32, 0.72, 0, 1) both; }
+
+/* Animal legs swing while marching */
+.leg-a { animation: leg-swing-a 1.1s ease-in-out infinite; transform-origin: 50% 8%; transform-box: fill-box; }
+.leg-b { animation: leg-swing-b 1.1s ease-in-out infinite; transform-origin: 50% 8%; transform-box: fill-box; }
+
+/* Pause marquee on hover so it never fights the reader */
+.animate-parade:hover { animation-play-state: paused; }
+
+/* Tabular figures for every financial number */
+.num {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.font-display {
+  letter-spacing: -0.015em;
+}
+.font-display .num, .num.font-display {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1, "ss01" 1;
+}
+
+/* Hide scrollbars on chip rails */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Range sliders ── */
+.range {
+  --fill: 50%;
+  --thumb: var(--color-brand-700);
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+}
+.range:focus { outline: none; }
+.range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--thumb) 0%,
+    var(--thumb) var(--fill),
+    var(--color-sand-200) var(--fill),
+    var(--color-sand-200) 100%
+  );
+}
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -8px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2.5px solid var(--thumb);
+  box-shadow: 0 1px 4px rgb(20 33 27 / 0.25);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.range:active::-webkit-slider-thumb,
+.range:focus-visible::-webkit-slider-thumb {
+  transform: scale(1.12);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--thumb) 18%, transparent);
+}
+.range::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--thumb) 0%,
+    var(--thumb) var(--fill),
+    var(--color-sand-200) var(--fill),
+    var(--color-sand-200) 100%
+  );
+}
+.range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2.5px solid var(--thumb);
+  box-shadow: 0 1px 4px rgb(20 33 27 / 0.25);
+}
+.range-gold { --thumb: var(--color-gold-500); }
+
+/* Remove number input arrows */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="month"], input[type="date"] {
+  min-height: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-brand-600) 75%, white);
+  outline-offset: 2px;
+}
+
+/* Print: only blocks marked print-only */
+.print-only { display: none; }
+
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  header, .sticky { display: none !important; }
+  body { background: #fff; background-image: none; }
+  main { padding: 0 !important; margin: 0 !important; }
+  tr { break-inside: avoid; }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    box-shadow: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-parade, .animate-walk, .animate-sway, .animate-spin-slow,
+  .animate-spin-rev, .animate-rise, .leg-a, .leg-b {
+    animation: none !important;
+  }
+  *, *::before, *::after {
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Momentum scrolling + GPU-friendly rails */
+.no-scrollbar {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
