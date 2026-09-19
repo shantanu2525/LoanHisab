@@ -1,7 +1,7 @@
 // ─── Indian Loan Calculator — app shell ──────────────────────────────────────
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ShieldCheck, Globe, Printer, IndianRupee, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { ShieldCheck, Globe, Printer, IndianRupee, Sparkles, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { Chakra, Toran, Squiggle, AnimalParade, Rangoli, Elephant, Peacock } from "./components/Ornaments";
 
 import LoanTypePicker from "./components/LoanTypePicker";
@@ -14,6 +14,8 @@ import Comparison from "./components/Comparison";
 import Scenarios from "./components/Scenarios";
 import ExportBar from "./components/ExportBar";
 import Landing from "./components/Landing";
+import { PWAMounts, UpdateToast, OfflineToast, IOSInstallSheet } from "./components/PWA";
+import { useInstallState } from "./lib/pwa";
 import { SectionTitle, Card, Reveal } from "./components/ui";
 
 import { defaultInputs, useLoanResult, type LoanInputs, type Derived } from "./lib/state";
@@ -56,6 +58,8 @@ export default function App() {
   const [entered, setEntered] = useState(false);
   const [viewportObscured, setViewportObscured] = useState(false);
   const [flash, setFlash] = useState(0);
+  const [manualIOSOpen, setManualIOSOpen] = useState(false);
+  const install = useInstallState();
 
   const enterApp = useCallback(() => {
     setEntered(true);
@@ -166,8 +170,10 @@ export default function App() {
       inert={!entered}
     >
       {/* ── Sticky header + section nav ── */}
-      <div className="tricolor-bar sticky top-0 z-[60] h-[3px] w-full no-print" />
-      <header className="sticky top-[3px] z-50 border-b border-line/80 bg-sand-100/85 backdrop-blur-md no-print">
+      <div className="tricolor-bar pwa-safe-top h-[3px] sticky top-0 z-[60] w-full no-print" />
+      <header className="sticky top-[3px] z-50 border-b border-line/80 bg-sand-100/85 backdrop-blur-md no-print"
+        style={{ top: "calc(3px + env(safe-area-inset-top))" }}
+      >
         <div className="mx-auto flex h-13 min-w-0 max-w-5xl items-center justify-between gap-2 px-3.5 sm:gap-3 sm:px-5">
           <button
             type="button"
@@ -185,6 +191,34 @@ export default function App() {
             </span>
           </button>
           <div className="flex items-center gap-1.5">
+            {/* ── Install App pill: appears only when a real install path exists ── */}
+            {!install.standalone && install.androidPrompt && (
+              <button
+                type="button"
+                onClick={async () => {
+                  await install.androidPrompt?.prompt();
+                  await install.androidPrompt?.userChoice.catch(() => undefined);
+                }}
+                aria-label="Install LoanHisab app"
+                className="flex h-9 items-center gap-1.5 rounded-full bg-brand-700 px-3 text-[12.5px] font-bold text-white shadow-sm transition hover:bg-brand-800 active:scale-95"
+              >
+                <Download className="size-3.5" strokeWidth={2.5} />
+                <span className="hidden min-[420px]:inline">Install App</span>
+                <span className="min-[420px]:hidden">Install</span>
+              </button>
+            )}
+            {!install.standalone && !install.androidPrompt && install.iOS && install.mobile && (
+              <button
+                type="button"
+                onClick={() => setManualIOSOpen(true)}
+                aria-label="How to install LoanHisab on iPhone"
+                className="flex h-9 items-center gap-1.5 rounded-full bg-brand-700 px-3 text-[12.5px] font-bold text-white shadow-sm transition hover:bg-brand-800 active:scale-95"
+              >
+                <Download className="size-3.5" strokeWidth={2.5} />
+                <span className="hidden min-[420px]:inline">Install App</span>
+                <span className="min-[420px]:hidden">Install</span>
+              </button>
+            )}
             <div className="relative max-[359px]:w-10">
               <Globe className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-ink-400" />
               <select
@@ -381,6 +415,17 @@ export default function App() {
     <AnimatePresence>
       {!entered && <Landing key="landing" onEnter={enterApp} />}
     </AnimatePresence>
+
+    {/* ── PWA: install banners, iOS guide, update & offline toasts ── */}
+    {entered && <PWAMounts />}
+    <UpdateToast />
+    <OfflineToast />
+    {install.iOS && !install.standalone && (
+      <IOSInstallSheet
+        open={manualIOSOpen}
+        onClose={(hide) => { setManualIOSOpen(false); if (hide) install.dismissIOS(); }}
+      />
+    )}
     </>
   );
 }

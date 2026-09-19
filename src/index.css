@@ -51,12 +51,15 @@ html {
   -webkit-tap-highlight-color: transparent;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  /* iOS standalone: let the page paint under the status bar, we pad it ourselves */
+  height: -webkit-fill-available;
 }
 html::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 body {
   width: 100%;
   max-width: 100%;
+  min-height: -webkit-fill-available;
   background-color: var(--color-sand-100);
   /* Subtle rangoli-dot soil texture */
   background-image: radial-gradient(
@@ -297,6 +300,28 @@ input[type="month"], input[type="date"] {
 :focus-visible {
   outline: 2px solid color-mix(in srgb, var(--color-brand-600) 75%, white);
   outline-offset: 2px;
+}
+
+/* ── PWA & notch safety ──────────────────────────────────────────────────── */
+/* Sticky header respects the notch / Dynamic Island, and the tricolor ribbon
+   keeps painting color into the status-bar strip in standalone mode. */
+.pwa-safe-top {
+  padding-top: env(safe-area-inset-top);
+  margin-top: calc(-1 * env(safe-area-inset-top));
+}
+.tricolor-bar {
+  min-height: calc(3px + env(safe-area-inset-top));
+}
+
+/* The app shell always clears the home-indicator area on iOS */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* In installed/standalone mode the page locks nicer (no URL-bar chrome) */
+@media (display-mode: standalone), (display-mode: window-controls-overlay) {
+  html { scroll-padding-top: calc(88px + env(safe-area-inset-top)); }
+  body { overscroll-behavior-y: none; }
 }
 
 /* Print: only blocks marked print-only */
