@@ -74,7 +74,7 @@ export default function Comparison({ inp, d }: { inp: LoanInputs; d: Derived }) 
                 </div>
               </div>
               {on && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="mobile-stack grid grid-cols-2 gap-3">
                   <Field label="Amount"><NumInput value={it.amount} onChange={(n) => set(i, { amount: n })} words /></Field>
                   <Field label="Rate"><PctInput value={it.annualRate} onChange={(n) => set(i, { annualRate: n })} /></Field>
                   <Field label="Tenure (months)"><NumInput value={it.tenureMonths} onChange={(n) => set(i, { tenureMonths: clamp(Math.round(n), 1, 600) })} prefix="" inputMode="numeric" /></Field>

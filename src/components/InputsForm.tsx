@@ -131,7 +131,7 @@ export default function InputsForm({
                   min={10_000} max={20_000_000} step={5_000} showPresets={false}
                   hint="We do not fetch live gold prices — enter today's assessed value."
                 />
-                <div className="grid grid-cols-2 gap-3">
+                <div className="mobile-stack grid grid-cols-2 gap-3">
                   <Field label="Weight">
                     <NumInput value={inp.goldWeight} onChange={(n) => patch({ goldWeight: n })} prefix=" " suffix="grams" />
                   </Field>

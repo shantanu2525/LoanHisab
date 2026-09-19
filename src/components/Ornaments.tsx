@@ -160,7 +160,7 @@ export function AnimalParade({
     );
   });
   return (
-    <div aria-hidden className={cn("relative overflow-hidden", className)}>
+    <div aria-hidden className={cn("animal-parade-shell relative overflow-hidden", className)}>
       <div
         className="animate-parade flex w-max items-end text-brand-800"
         style={{ animationDuration: `${speed}s` }}

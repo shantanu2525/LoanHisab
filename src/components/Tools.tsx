@@ -86,11 +86,18 @@ export default function Tools({ inp, d }: { inp: LoanInputs; d: Derived }) {
   const [tab, setTab] = useState<TabId>("whatif");
   const rail = useRail();
 
-  // Keep the active tab centred — only when the tab actually changes.
-  useEffect(() => {
-    const el = rail.ref.current?.querySelector<HTMLElement>('[data-active="true"]');
-    el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-  }, [tab, rail.ref]);
+  // Centre a selected tab by changing only this rail's horizontal position.
+  // scrollIntoView() is intentionally avoided because it can move the page on mount.
+  const selectTab = (next: TabId) => {
+    setTab(next);
+    requestAnimationFrame(() => {
+      const container = rail.ref.current;
+      const el = container?.querySelector<HTMLElement>(`[data-tab="${next}"]`);
+      if (!container || !el) return;
+      const left = el.offsetLeft - (container.clientWidth - el.offsetWidth) / 2;
+      container.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+    });
+  };
 
   return (
     <Card className="overflow-hidden">
@@ -112,8 +119,9 @@ export default function Tools({ inp, d }: { inp: LoanInputs; d: Derived }) {
                   <button
                     key={t.id}
                     type="button"
+                    data-tab={t.id}
                     data-active={active}
-                    onClick={() => setTab(t.id)}
+                    onClick={() => selectTab(t.id)}
                     aria-current={active}
                     className={cn(
                       "flex shrink-0 snap-center items-center gap-1.5 rounded-full border px-3 py-2 text-[12.5px] font-semibold transition-all duration-200 active:scale-95",
@@ -443,7 +451,7 @@ function Affordability({ inp, d }: { inp: LoanInputs; d: Derived }) {
       >
         <Slider value={share} onChange={setShare} min={0} max={100} step={5} accent="gold" />
       </Field>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mobile-stack grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Mini label="EMI you set aside" v={fmtINR(emi)} strong />
         <Mini label="Estimated loan amount" v={fmtINR(loan)} sub={`@ ${fmtPct(inp.rate)}, ${d.periods} payments`} strong />
         <Mini label="EMI-to-income ratio" v={`${ratio.toFixed(1)}%`} />
@@ -513,7 +521,7 @@ function ReverseTenure({ inp }: { inp: LoanInputs }) {
           {amount > 0 && rate > 0 ? <> (<strong>{fmtINR(floor)}</strong>)</> : null}. Increase the EMI, lower the rate, or reduce the amount.
         </Note>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mobile-stack grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Mini label="Estimated tenure" v={n >= 24 ? `${(n / 12).toFixed(1)} years` : `${Math.ceil(n)} months`} sub={`${Math.ceil(n)} payments`} strong />
           <Mini label="Number of EMIs" v={`${Math.ceil(n)}`} />
           <Mini label="Total interest" v={fmtINR(Math.max(0, int))} />
@@ -732,7 +740,7 @@ function ExtraPayments({ inp, d }: { inp: LoanInputs; d: Derived }) {
 
           {out.withP && (
             <>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="mobile-stack grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <Mini label="Total extra paid" v={fmtINR(totalExtra)} sub={`${out.clean.length} payment${out.clean.length > 1 ? "s" : ""}`} />
                 <Mini label="Interest saved" v={fmtINR(saved)} sub={`${fmtINR(out.without.totalInterest)} → ${fmtINR(out.withP.totalInterest)}`} strong />
                 {mode === "reduce_tenure" ? (

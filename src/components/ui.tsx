@@ -87,10 +87,10 @@ export function Field({
   label, hint, error, children, className, trailing,
 }: { label?: string; hint?: ReactNode; error?: string | null; children: ReactNode; className?: string; trailing?: ReactNode }) {
   return (
-    <div className={className}>
+    <div className={cn("min-w-0", className)}>
       {label && (
-        <div className="mb-1.5 flex items-baseline justify-between gap-2">
-          <label className="text-[13px] font-medium text-ink-700">{label}</label>
+        <div className="mb-1.5 flex min-w-0 flex-wrap items-center justify-between gap-2">
+          <label className="min-w-0 text-[13px] font-medium text-ink-700">{label}</label>
           {trailing}
         </div>
       )}
@@ -264,14 +264,14 @@ export function Segmented<T extends string | number>({
   value: T; onChange: (v: T) => void; className?: string; size?: "sm" | "md";
 }) {
   return (
-    <div className={cn("inline-flex rounded-xl border border-line bg-sand-100 p-1", className)}>
+    <div className={cn("no-scrollbar inline-flex max-w-full overflow-x-auto rounded-xl border border-line bg-sand-100 p-1", className)}>
       {options.map((o) => (
         <button
           key={String(o.value)}
           type="button"
           onClick={() => onChange(o.value)}
           className={cn(
-            "rounded-lg font-medium transition-all active:scale-[0.97]",
+            "shrink-0 whitespace-nowrap rounded-lg font-medium transition-all active:scale-[0.97]",
             size === "sm" ? "h-8 px-2.5 text-[12px]" : "h-9 px-3.5 text-[13px]",
             value === o.value ? "bg-white text-ink-900 shadow-sm ring-1 ring-line" : "text-ink-500 hover:text-ink-700"
           )}

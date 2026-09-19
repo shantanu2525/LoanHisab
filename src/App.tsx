@@ -1,6 +1,6 @@
 // ─── Indian Loan Calculator — app shell ──────────────────────────────────────
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ShieldCheck, Globe, Printer, IndianRupee, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { Chakra, Toran, Squiggle, AnimalParade, Rangoli, Elephant, Peacock } from "./components/Ornaments";
 
@@ -13,6 +13,7 @@ import Tools from "./components/Tools";
 import Comparison from "./components/Comparison";
 import Scenarios from "./components/Scenarios";
 import ExportBar from "./components/ExportBar";
+import Landing from "./components/Landing";
 import { SectionTitle, Card, Reveal } from "./components/ui";
 
 import { defaultInputs, useLoanResult, type LoanInputs, type Derived } from "./lib/state";
@@ -52,7 +53,14 @@ export default function App() {
   const [inp, setInp] = useState<LoanInputs>(defaultInputs);
   const [lang, setLang] = useState<Lang>("en");
   const [miniVisible, setMiniVisible] = useState(false);
+  const [entered, setEntered] = useState(false);
+  const [viewportObscured, setViewportObscured] = useState(false);
   const [flash, setFlash] = useState(0);
+
+  const enterApp = useCallback(() => {
+    setEntered(true);
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+  }, []);
   const navRef = useRef<HTMLDivElement>(null);
   const [navEdge, setNavEdge] = useState({ left: false, right: true });
 
@@ -71,9 +79,35 @@ export default function App() {
 
   useEffect(() => {
     measureNav();
+    const el = navRef.current;
+    const ro = typeof ResizeObserver !== "undefined" && el
+      ? new ResizeObserver(measureNav)
+      : null;
+    if (el) ro?.observe(el);
     window.addEventListener("resize", measureNav);
-    return () => window.removeEventListener("resize", measureNav);
+    document.fonts?.ready.then(measureNav).catch(() => undefined);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", measureNav);
+    };
   }, [measureNav]);
+
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    const sync = () => {
+      const zoomed = viewport.scale > 1.04;
+      const keyboardLike = viewport.height < window.innerHeight * 0.7;
+      setViewportObscured(zoomed || keyboardLike);
+    };
+    sync();
+    viewport.addEventListener("resize", sync);
+    viewport.addEventListener("scroll", sync);
+    return () => {
+      viewport.removeEventListener("resize", sync);
+      viewport.removeEventListener("scroll", sync);
+    };
+  }, []);
   const d = useLoanResult(inp);
   const t = useCallback((k: Parameters<typeof translate>[1]) => translate(lang, k), [lang]);
 
@@ -113,7 +147,11 @@ export default function App() {
   useEffect(() => {
     const el = document.getElementById("overview-hero");
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => setMiniVisible(!e.isIntersecting), { rootMargin: "-80px 0px 0px 0px" });
+    // Show only after the result has been passed, not while editing inputs above it.
+    const io = new IntersectionObserver(
+      ([e]) => setMiniVisible(!e.isIntersecting && e.boundingClientRect.top < 80),
+      { rootMargin: "-80px 0px 0px 0px" }
+    );
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -121,34 +159,39 @@ export default function App() {
   const valid = d.principal > 0 && Object.keys(d.errors).length === 0;
 
   return (
-    <div className="min-h-dvh bg-sand-100 font-sans text-ink-900 antialiased">
+    <>
+    <div
+      className="min-h-dvh bg-sand-100 font-sans text-ink-900 antialiased"
+      aria-hidden={!entered}
+      inert={!entered}
+    >
       {/* ── Sticky header + section nav ── */}
       <div className="tricolor-bar sticky top-0 z-[60] h-[3px] w-full no-print" />
       <header className="sticky top-[3px] z-50 border-b border-line/80 bg-sand-100/85 backdrop-blur-md no-print">
-        <div className="mx-auto flex h-13 max-w-5xl items-center justify-between gap-3 px-3.5 sm:px-5">
+        <div className="mx-auto flex h-13 min-w-0 max-w-5xl items-center justify-between gap-2 px-3.5 sm:gap-3 sm:px-5">
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="flex items-center gap-2.5"
+            className="flex min-w-0 items-center gap-2 sm:gap-2.5"
           >
             <span className="brand-mark grid size-8.5 place-items-center rounded-xl text-white shadow-md shadow-brand-700/25">
               <IndianRupee className="size-4.5" strokeWidth={2.5} />
             </span>
             <span className="flex items-baseline gap-2">
-              <span className="font-display text-[18px] font-bold tracking-tight">
+              <span className="truncate font-display text-[17px] font-bold tracking-tight sm:text-[18px]">
                 Loan<span className="text-brand-700">Hisab</span>
               </span>
               <span lang="hi" className="font-dv hidden text-[12px] font-semibold text-gold-600 sm:inline">लोन हिसाब</span>
             </span>
           </button>
           <div className="flex items-center gap-1.5">
-            <div className="relative">
+            <div className="relative max-[359px]:w-10">
               <Globe className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-ink-400" />
               <select
                 value={lang}
                 onChange={(e) => setLang(e.target.value as Lang)}
                 aria-label="Language"
-                className="h-9 appearance-none rounded-full border border-line bg-white pl-8 pr-7 text-[12.5px] font-semibold text-ink-700 outline-none transition hover:border-brand-600/40"
+                className="h-9 w-full appearance-none rounded-full border border-line bg-white pl-8 pr-7 text-[12.5px] font-semibold text-ink-700 outline-none transition hover:border-brand-600/40 max-[359px]:text-transparent"
                 style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235B6B62' stroke-width='2.4'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 9px center" }}
               >
                 {LANGUAGES.map((l) => (
@@ -331,8 +374,14 @@ export default function App() {
       {/* ── Print-only summary ── */}
       <PrintSummary inp={inp} d={d} />
 
-      <MiniSummaryBar inp={inp} d={d} visible={miniVisible} />
+      <MiniSummaryBar inp={inp} d={d} visible={entered && miniVisible && !viewportObscured} />
     </div>
+
+    {/* ── Landing doors sit above the app and open into it ── */}
+    <AnimatePresence>
+      {!entered && <Landing key="landing" onEnter={enterApp} />}
+    </AnimatePresence>
+    </>
   );
 }
 

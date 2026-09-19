@@ -120,7 +120,7 @@ export default function Dashboard({ inp, d }: { inp: LoanInputs; d: Derived }) {
       </motion.div>
 
       {/* ── Summary cards ── */}
-      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
+      <div className="mobile-stack grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
         <Stat label="Loan amount"><AnimatedMoney value={principalSlice} /></Stat>
         <Stat label="Total interest" tone="gold"><AnimatedMoney value={interestSlice} /></Stat>
         <Stat label="Total repayment" sub="principal + interest"><AnimatedMoney value={result.totalPaid} /></Stat>
@@ -266,7 +266,7 @@ export function MiniSummaryBar({ inp, d, visible }: { inp: LoanInputs; d: Derive
   return (
     <div
       className={cn(
-        "fixed inset-x-3 bottom-3 z-40 transition-all duration-300 md:hidden",
+        "mobile-mini-summary fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 transition-all duration-300 md:hidden",
         visible && valid ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
       )}
     >

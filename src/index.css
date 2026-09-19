@@ -55,7 +55,8 @@ html {
 html::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 body {
-  min-width: 320px;
+  width: 100%;
+  max-width: 100%;
   background-color: var(--color-sand-100);
   /* Subtle rangoli-dot soil texture */
   background-image: radial-gradient(
@@ -69,6 +70,16 @@ body {
   -ms-overflow-style: none;
 }
 body::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+#root {
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+main, main > *, header, nav {
+  min-width: 0;
+}
 
 /* No scrollbars anywhere — swipe / arrow buttons drive horizontal rails */
 *::-webkit-scrollbar { width: 0; height: 0; display: none; }
@@ -96,10 +107,31 @@ body::-webkit-scrollbar { width: 0; height: 0; display: none; }
   background: linear-gradient(155deg, var(--color-gold-500) -10%, var(--color-brand-700) 60%, var(--color-brand-800) 100%);
 }
 
+/* Carved temple door panel for the landing screen (brass studs on warm wood) */
+.temple-door {
+  background-color: var(--color-sand-100);
+  background-image:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-gold-600) 24%, transparent) 1.6px,
+      transparent 2.2px
+    ),
+    radial-gradient(
+      color-mix(in srgb, var(--color-ink-500) 7%, transparent) 0.9px,
+      transparent 1.2px
+    );
+  background-size: 46px 46px, 22px 22px;
+  box-shadow: inset 0 0 90px rgb(20 33 27 / 0.07);
+  overflow: hidden;
+}
+
 /* ── Indian motif animations ── */
 @keyframes spin-slow { to { transform: rotate(360deg); } }
 @keyframes spin-rev { to { transform: rotate(-360deg); } }
-@keyframes parade-march { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes parade-march {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
 @keyframes walk-bob {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-3px) rotate(-1.2deg); }
@@ -123,17 +155,27 @@ body::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 .animate-spin-slow { animation: spin-slow 90s linear infinite; transform-origin: 50% 50%; }
 .animate-spin-rev { animation: spin-rev 120s linear infinite; transform-origin: 50% 50%; }
-.animate-parade { animation: parade-march 70s linear infinite; will-change: transform; }
-.animate-walk { animation: walk-bob 1.1s ease-in-out infinite; transform-origin: 50% 90%; }
+.animal-parade-shell {
+  contain: layout paint;
+  overflow-anchor: none;
+}
+.animate-parade {
+  animation: parade-march 70s linear infinite;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+.animate-walk {
+  animation: walk-bob 1.1s ease-in-out infinite;
+  backface-visibility: hidden;
+  transform-origin: 50% 90%;
+  will-change: transform;
+}
 .animate-sway { animation: sway 3.2s ease-in-out infinite; transform-origin: 50% 0%; }
 .animate-rise { animation: rise-in 0.5s cubic-bezier(0.32, 0.72, 0, 1) both; }
 
 /* Animal legs swing while marching */
 .leg-a { animation: leg-swing-a 1.1s ease-in-out infinite; transform-origin: 50% 8%; transform-box: fill-box; }
 .leg-b { animation: leg-swing-b 1.1s ease-in-out infinite; transform-origin: 50% 8%; transform-box: fill-box; }
-
-/* Pause marquee on hover so it never fights the reader */
-.animate-parade:hover { animation-play-state: paused; }
 
 /* Tabular figures for every financial number */
 .num {
@@ -227,6 +269,29 @@ input::-webkit-inner-spin-button {
 
 input[type="month"], input[type="date"] {
   min-height: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* iOS zooms the whole viewport when a focused form control is below 16px. */
+@media (max-width: 767px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* The virtual keyboard should not leave a result bar over the active field. */
+  body:has(input:focus, select:focus, textarea:focus) .mobile-mini-summary {
+    pointer-events: none !important;
+    opacity: 0 !important;
+    transform: translateY(1rem) !important;
+  }
+}
+
+@media (max-width: 359px) {
+  /* Keep two-column summaries readable when text zoom narrows the viewport. */
+  .mobile-stack {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
 }
 
 :focus-visible {
